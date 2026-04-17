@@ -31,9 +31,25 @@ export async function callNewsletterAgent(
   const text = await res.text();
   if (!text) return {};
   try {
-    const data = JSON.parse(text);
+    let data: any = JSON.parse(text);
     // n8n sometimes wraps response in array
-    if (Array.isArray(data)) return data[0] ?? {};
+    if (Array.isArray(data)) data = data[0] ?? {};
+    // Unwrap common n8n nesting: { json: {...} }, { data: {...} }, { output: {...} }, { response: {...} }
+    if (data && typeof data === "object") {
+      for (const key of ["json", "data", "output", "response", "result"]) {
+        if (data[key] && typeof data[key] === "object" && (data[key].content || data[key].title || data[key].status)) {
+          data = data[key];
+          break;
+        }
+      }
+      // If output is a JSON string, try parsing it
+      if (typeof data.output === "string") {
+        try {
+          const parsed = JSON.parse(data.output);
+          if (parsed && (parsed.content || parsed.title)) data = parsed;
+        } catch { /* ignore */ }
+      }
+    }
     return data;
   } catch {
     return { content: text };
