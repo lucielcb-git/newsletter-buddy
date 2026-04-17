@@ -1,95 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Soft pastel palette */
+    --background: 280 50% 98%;
+    --foreground: 270 25% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 270 25% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 270 25% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Soft lavender primary */
+    --primary: 265 70% 72%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 265 80% 94%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Mint secondary */
+    --secondary: 155 55% 85%;
+    --secondary-foreground: 160 40% 25%;
+    --mint: 155 65% 75%;
+    --mint-soft: 155 70% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 270 30% 95%;
+    --muted-foreground: 270 15% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Warm peach accent */
+    --accent: 20 90% 85%;
+    --accent-foreground: 20 50% 30%;
+    --peach: 20 95% 78%;
+    --peach-soft: 20 100% 94%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 145 60% 55%;
+    --success-foreground: 0 0% 100%;
+    --warning: 40 95% 60%;
+    --warning-foreground: 30 50% 20%;
 
-    --radius: 0.5rem;
+    --border: 270 30% 92%;
+    --input: 270 30% 92%;
+    --ring: 265 70% 72%;
+
+    --radius: 1.25rem;
+
+    /* Gradients */
+    --gradient-bg: linear-gradient(180deg, hsl(265 80% 97%) 0%, hsl(0 0% 100%) 60%, hsl(155 70% 97%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(265 75% 78%), hsl(285 70% 80%));
+    --gradient-mint: linear-gradient(135deg, hsl(155 65% 78%), hsl(175 60% 80%));
+    --gradient-peach: linear-gradient(135deg, hsl(20 95% 82%), hsl(340 85% 85%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(265 50% 70% / 0.15);
+    --shadow-card: 0 8px 30px -8px hsl(265 50% 60% / 0.18);
+    --shadow-glow: 0 0 40px hsl(265 80% 80% / 0.4);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -99,7 +77,54 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html, body, #root {
+    height: 100%;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--gradient-bg);
+    background-attachment: fixed;
   }
 }
+
+@layer utilities {
+  .bg-gradient-primary { background: var(--gradient-primary); }
+  .bg-gradient-mint { background: var(--gradient-mint); }
+  .bg-gradient-peach { background: var(--gradient-peach); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+
+  /* Markdown prose */
+  .newsletter-prose h1 { @apply text-2xl font-bold mt-6 mb-3 text-foreground; }
+  .newsletter-prose h2 { @apply text-xl font-bold mt-5 mb-2 text-foreground; }
+  .newsletter-prose h3 { @apply text-lg font-semibold mt-4 mb-2 text-foreground; }
+  .newsletter-prose p { @apply my-3 leading-relaxed text-foreground/85; }
+  .newsletter-prose ul { @apply list-disc pl-6 my-3 space-y-1 text-foreground/85; }
+  .newsletter-prose ol { @apply list-decimal pl-6 my-3 space-y-1 text-foreground/85; }
+  .newsletter-prose a { @apply text-primary underline underline-offset-2; }
+  .newsletter-prose strong { @apply font-semibold text-foreground; }
+  .newsletter-prose blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-4 text-foreground/75; }
+  .newsletter-prose code { @apply bg-muted px-1.5 py-0.5 rounded text-sm; }
+  .newsletter-prose hr { @apply my-6 border-border; }
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float { animation: float-soft 3s ease-in-out infinite; }
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fade-in-up 0.35s ease-out; }
+
+@keyframes preview-pop {
+  0% { opacity: 0.4; transform: scale(0.99); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-preview-pop { animation: preview-pop 0.4s ease-out; }
