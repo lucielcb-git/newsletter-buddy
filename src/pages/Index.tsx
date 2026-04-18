@@ -60,9 +60,11 @@ const Index = () => {
   };
 
   const handleTest = async () => {
+    if (!draft) return;
     setIsSending("test");
     try {
-      await callNewsletterAgent({ action: "test", userId: USER_ID });
+      const message = `Title: ${draft.title}\n\n${draft.content}`;
+      await callNewsletterAgent({ action: "test", userId: USER_ID, message });
       toast.success("Test email sent! 📨");
     } catch {
       toast.error("Failed to send test email.");
