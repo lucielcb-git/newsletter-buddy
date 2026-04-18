@@ -38,9 +38,14 @@ const Index = () => {
     setMessages((m) => [...m, userMsg]);
     setIsLoading(true);
 
-    const action = draft ? "edit" : "generate";
+    const isEditIntent = /\bedit\b/i.test(text);
+    const action = isEditIntent || draft ? "edit" : "generate";
+    const messageToSend =
+      action === "edit" && draft
+        ? `${text}\n\n---\nCurrent newsletter:\nTitle: ${draft.title}\n\n${draft.content}`
+        : text;
     try {
-      const data = await callNewsletterAgent({ action, userId: USER_ID, message: text });
+      const data = await callNewsletterAgent({ action, userId: USER_ID, message: messageToSend });
       applyResponse(data);
       const reply = data.content
         ? `Done! I've ${action === "generate" ? "drafted" : "updated"} your newsletter — check the preview ✨`
