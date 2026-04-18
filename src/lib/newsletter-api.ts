@@ -6,6 +6,7 @@ export interface NewsletterRequest {
   action: NewsletterAction;
   userId: number;
   message?: string;
+  content?: string;
 }
 
 export interface NewsletterResponse {
