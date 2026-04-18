@@ -40,12 +40,9 @@ const Index = () => {
 
     const isEditIntent = /\bedit\b/i.test(text);
     const action = isEditIntent || draft ? "edit" : "generate";
-    const messageToSend =
-      action === "edit" && draft
-        ? `${text}\n\n---\nCurrent newsletter:\nTitle: ${draft.title}\n\n${draft.content}`
-        : text;
+    const currentContent = draft ? `Title: ${draft.title}\n\n${draft.content}` : undefined;
     try {
-      const data = await callNewsletterAgent({ action, userId: USER_ID, message: messageToSend });
+      const data = await callNewsletterAgent({ action, userId: USER_ID, message: text, content: currentContent });
       applyResponse(data);
       const reply = data.content
         ? `Done! I've ${action === "generate" ? "drafted" : "updated"} your newsletter — check the preview ✨`
@@ -68,8 +65,8 @@ const Index = () => {
     if (!draft) return;
     setIsSending("test");
     try {
-      const message = `Title: ${draft.title}\n\n${draft.content}`;
-      await callNewsletterAgent({ action: "test", userId: USER_ID, message });
+      const content = `Title: ${draft.title}\n\n${draft.content}`;
+      await callNewsletterAgent({ action: "test", userId: USER_ID, message: "Send test email", content });
       toast.success("Test email sent! 📨");
     } catch {
       toast.error("Failed to send test email.");
