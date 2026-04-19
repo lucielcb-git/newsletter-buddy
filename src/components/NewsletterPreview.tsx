@@ -26,20 +26,43 @@ interface NewsletterPreviewProps {
   isSending: "test" | "approve" | null;
 }
 
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[*_`~]/g, "")
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function stripTitleFromContent(content: string, title: string): string {
+  if (!title) return content;
   const lines = content.split("\n");
-  if (lines.length === 0) return content;
-  
-  const firstLine = lines[0].trim();
-  const headingMatch = firstLine.match(/^#\s+(.+)$/);
-  
-  if (headingMatch) {
-    const headingText = headingMatch[1].trim();
-    if (headingText.toLowerCase() === title.toLowerCase()) {
-      return lines.slice(1).join("\n").trimStart();
-    }
+  const normTitle = normalize(title);
+  if (!normTitle) return content;
+
+  // Skip leading blank lines
+  let i = 0;
+  while (i < lines.length && lines[i].trim() === "") i++;
+  if (i >= lines.length) return content;
+
+  const firstLine = lines[i].trim();
+  // Match markdown heading (#..######), bold-only line, or plain text line
+  const headingMatch = firstLine.match(/^#{1,6}\s+(.+?)\s*#*\s*$/);
+  const boldMatch = firstLine.match(/^\*\*(.+?)\*\*$/) || firstLine.match(/^__(.+?)__$/);
+  const candidate = headingMatch?.[1] ?? boldMatch?.[1] ?? firstLine;
+  const normCandidate = normalize(candidate);
+
+  if (
+    normCandidate &&
+    (normCandidate === normTitle ||
+      normCandidate.includes(normTitle) ||
+      normTitle.includes(normCandidate))
+  ) {
+    return lines.slice(i + 1).join("\n").trimStart();
   }
-  
+
   return content;
 }
 
