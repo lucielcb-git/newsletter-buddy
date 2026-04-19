@@ -91,7 +91,34 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
             </div>
             <div className="rounded-2xl bg-background/60 border border-border/60 p-6 shadow-soft">
               <article className="newsletter-prose">
-                <ReactMarkdown>{stripTitleFromContent(draft.content, draft.title)}</ReactMarkdown>
+                <ReactMarkdown
+                  components={{
+                    a: ({ href, children }) => {
+                      const isUrlOnly = typeof children === 'string' && children === href;
+                      const hasReadPrefix = typeof children === 'string' && children.startsWith('Read:');
+                      if (isUrlOnly || hasReadPrefix) {
+                        return (
+                          <a 
+                            href={href} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors no-underline"
+                          >
+                            Read full article 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                          </a>
+                        );
+                      }
+                      return (
+                        <a href={href} target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      );
+                    }
+                  }}
+                >
+                  {stripTitleFromContent(draft.content, draft.title)}
+                </ReactMarkdown>
               </article>
             </div>
           </div>

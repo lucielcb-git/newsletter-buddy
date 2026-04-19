@@ -104,7 +104,10 @@
   .newsletter-prose p { @apply my-3 leading-relaxed text-foreground/85; }
   .newsletter-prose ul { @apply list-disc pl-6 my-3 space-y-1 text-foreground/85; }
   .newsletter-prose ol { @apply list-decimal pl-6 my-3 space-y-1 text-foreground/85; }
-  .newsletter-prose a { @apply text-primary underline underline-offset-2; }
+  .newsletter-prose a { 
+    @apply text-primary underline underline-offset-2 transition-colors hover:text-primary/80;
+    word-break: break-all;
+  }
   .newsletter-prose strong { @apply font-semibold text-foreground; }
   .newsletter-prose blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-4 text-foreground/75; }
   .newsletter-prose code { @apply bg-muted px-1.5 py-0.5 rounded text-sm; }
