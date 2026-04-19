@@ -91,7 +91,7 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
             </div>
             <div className="rounded-2xl bg-background/60 border border-border/60 p-6 shadow-soft">
               <article className="newsletter-prose">
-                <ReactMarkdown>{draft.content}</ReactMarkdown>
+                <ReactMarkdown>{stripTitleFromContent(draft.content, draft.title)}</ReactMarkdown>
               </article>
             </div>
           </div>
