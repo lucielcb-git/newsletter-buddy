@@ -43,6 +43,21 @@ function stripTitleFromContent(content: string, title: string): string {
   return content;
 }
 
+// Convert bare URLs (and "Read: <url>" patterns) into clean markdown links
+function linkifyUrls(content: string): string {
+  // Replace "Read: https://..." patterns first
+  let result = content.replace(
+    /(?:Read|Source|Link|URL):\s*(https?:\/\/\S+)/gi,
+    '[__READMORE__]($1)'
+  );
+  // Replace any remaining bare URLs (not already inside markdown link parens/brackets)
+  result = result.replace(
+    /(^|[\s(])(https?:\/\/[^\s)]+)/g,
+    (_match, prefix, url) => `${prefix}[__READMORE__](${url})`
+  );
+  return result;
+}
+
 export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: NewsletterPreviewProps) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -94,17 +109,21 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
                 <ReactMarkdown
                   components={{
                     a: ({ href, children }) => {
-                      const isUrlOnly = typeof children === 'string' && children === href;
-                      const hasReadPrefix = typeof children === 'string' && children.startsWith('Read:');
-                      if (isUrlOnly || hasReadPrefix) {
+                      const childArray = Array.isArray(children) ? children : [children];
+                      const textContent = childArray
+                        .map((c) => (typeof c === 'string' ? c : ''))
+                        .join('');
+                      const isPlaceholder = textContent.includes('__READMORE__');
+                      const isUrlOnly = textContent === href;
+                      if (isPlaceholder || isUrlOnly) {
                         return (
-                          <a 
-                            href={href} 
-                            target="_blank" 
+                          <a
+                            href={href}
+                            target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors no-underline"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors no-underline my-1"
                           >
-                            Read full article 
+                            Read full article
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                           </a>
                         );
@@ -117,7 +136,7 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
                     }
                   }}
                 >
-                  {stripTitleFromContent(draft.content, draft.title)}
+                  {linkifyUrls(stripTitleFromContent(draft.content, draft.title))}
                 </ReactMarkdown>
               </article>
             </div>
