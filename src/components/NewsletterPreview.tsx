@@ -43,6 +43,21 @@ function stripTitleFromContent(content: string, title: string): string {
   return content;
 }
 
+// Convert bare URLs (and "Read: <url>" patterns) into clean markdown links
+function linkifyUrls(content: string): string {
+  // Replace "Read: https://..." patterns first
+  let result = content.replace(
+    /(?:Read|Source|Link|URL):\s*(https?:\/\/\S+)/gi,
+    '[__READMORE__]($1)'
+  );
+  // Replace any remaining bare URLs (not already inside markdown link parens/brackets)
+  result = result.replace(
+    /(^|[\s(])(https?:\/\/[^\s)]+)/g,
+    (_match, prefix, url) => `${prefix}[__READMORE__](${url})`
+  );
+  return result;
+}
+
 export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: NewsletterPreviewProps) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
