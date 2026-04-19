@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Mail, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,23 @@ interface NewsletterPreviewProps {
   onTest: () => void;
   onApprove: () => void;
   isSending: "test" | "approve" | null;
+}
+
+function stripTitleFromContent(content: string, title: string): string {
+  const lines = content.split("\n");
+  if (lines.length === 0) return content;
+  
+  const firstLine = lines[0].trim();
+  const headingMatch = firstLine.match(/^#\s+(.+)$/);
+  
+  if (headingMatch) {
+    const headingText = headingMatch[1].trim();
+    if (headingText.toLowerCase() === title.toLowerCase()) {
+      return lines.slice(1).join("\n").trimStart();
+    }
+  }
+  
+  return content;
 }
 
 export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: NewsletterPreviewProps) => {
