@@ -37,6 +37,19 @@ export async function callNewsletterAgent(
     if (Array.isArray(data)) data = data[0] ?? {};
     // Unwrap common n8n nesting: { json: {...} }, { data: {...} }, { output: {...} }, { response: {...} }
     if (data && typeof data === "object") {
+      // Prefer original_output when present (new webhook shape: { original_output, evaluation })
+      if (data.original_output !== undefined) {
+        data = data.original_output;
+        if (typeof data === "string") {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed && typeof parsed === "object") data = parsed;
+            else return { content: String(data) };
+          } catch {
+            return { content: String(data) };
+          }
+        }
+      }
       for (const key of ["json", "data", "output", "response", "result"]) {
         if (data[key] && typeof data[key] === "object" && (data[key].content || data[key].title || data[key].status)) {
           data = data[key];
