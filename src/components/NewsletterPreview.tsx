@@ -1,7 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Mail, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, Award, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { Evaluation } from "@/lib/newsletter-api";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +27,7 @@ export interface Draft {
 
 interface NewsletterPreviewProps {
   draft: Draft | null;
+  evaluation?: Evaluation | null;
   onTest: () => void;
   onApprove: () => void;
   isSending: "test" | "approve" | null;
@@ -81,7 +88,7 @@ function linkifyUrls(content: string): string {
   return result;
 }
 
-export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: NewsletterPreviewProps) => {
+export const NewsletterPreview = ({ draft, evaluation, onTest, onApprove, isSending }: NewsletterPreviewProps) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -122,9 +129,10 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
           <EmptyState />
         ) : (
           <div key={draft.title + draft.content.length} className="animate-preview-pop">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
               <span className="text-2xl animate-float">✨</span>
-              <h1 className="text-2xl font-bold text-foreground flex-1">{draft.title || "Untitled newsletter"}</h1>
+              <h1 className="text-2xl font-bold text-foreground flex-1 min-w-0">{draft.title || "Untitled newsletter"}</h1>
+              {evaluation && <EvaluationBadge evaluation={evaluation} />}
               <StatusBadge status={draft.status} />
             </div>
             <div className="rounded-2xl bg-background/60 border border-border/60 p-6 shadow-soft">
@@ -189,6 +197,67 @@ export const NewsletterPreview = ({ draft, onTest, onApprove, isSending }: Newsl
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+};
+
+const EvaluationBadge = ({ evaluation }: { evaluation: Evaluation }) => {
+  const score = evaluation.overall_score;
+  const pass = evaluation.pass;
+  const hasScore = typeof score === "number";
+  return (
+    <HoverCard openDelay={100}>
+      <HoverCardTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-soft transition hover:scale-105",
+            pass
+              ? "bg-success text-success-foreground"
+              : "bg-destructive text-destructive-foreground"
+          )}
+        >
+          {pass ? <Award className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+          {hasScore ? `${score!.toFixed(1)}/10` : pass ? "Pass" : "Fail"}
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-72 rounded-2xl">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold">AI Evaluation</h4>
+            <span className={cn("text-xs font-bold", pass ? "text-success" : "text-destructive")}>
+              {pass ? "PASS" : "FAIL"}
+            </span>
+          </div>
+          {hasScore && (
+            <div className="text-xs text-muted-foreground">
+              Overall score: <span className="font-semibold text-foreground">{score!.toFixed(1)}/10</span>
+            </div>
+          )}
+          <ul className="space-y-1 text-xs">
+            <ScoreRow label="Tone" value={evaluation.tone} />
+            <ScoreRow label="Keyword coverage" value={evaluation.keyword_coverage} />
+            <ScoreRow label="Structure" value={evaluation.structure} />
+            <ScoreRow label="Length" value={evaluation.length} />
+            <ScoreRow label="Intent compliance" value={evaluation.intent_compliance} />
+          </ul>
+          {evaluation.feedback && (
+            <p className="text-xs text-muted-foreground border-t border-border/60 pt-2 mt-2 italic">
+              {evaluation.feedback}
+            </p>
+          )}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+};
+
+const ScoreRow = ({ label, value }: { label: string; value?: number }) => {
+  if (typeof value !== "number") return null;
+  return (
+    <li className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground">{value}/10</span>
+    </li>
   );
 };
 

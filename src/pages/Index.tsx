@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChatPanel, type ChatMessage } from "@/components/ChatPanel";
 import { NewsletterPreview, type Draft } from "@/components/NewsletterPreview";
-import { callNewsletterAgent } from "@/lib/newsletter-api";
+import { callNewsletterAgent, type Evaluation } from "@/lib/newsletter-api";
 import { Sparkles, Mail, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +17,12 @@ const USER_ID = 1;
 const Index = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState<"test" | "approve" | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
 
-  const applyResponse = (data: { title?: string; content?: string; status?: "draft" | "sent" }) => {
+  const applyResponse = (data: { title?: string; content?: string; status?: "draft" | "sent"; evaluation?: Evaluation }) => {
     if (data.content || data.title) {
       setDraft({
         title: data.title ?? draft?.title ?? "Untitled",
@@ -31,6 +32,7 @@ const Index = () => {
     } else if (data.status) {
       setDraft((d) => (d ? { ...d, status: data.status! } : d));
     }
+    if (data.evaluation) setEvaluation(data.evaluation);
   };
 
   const handleSend = async (text: string) => {
@@ -113,7 +115,7 @@ const Index = () => {
             <ChatPanel messages={messages} isLoading={isLoading} onSend={handleSend} />
           </div>
           <div className={cn("min-h-0", mobileTab === "preview" ? "block" : "hidden", "md:block")}>
-            <NewsletterPreview draft={draft} onTest={handleTest} onApprove={handleApprove} isSending={isSending} />
+            <NewsletterPreview draft={draft} evaluation={evaluation} onTest={handleTest} onApprove={handleApprove} isSending={isSending} />
           </div>
         </div>
       </div>
