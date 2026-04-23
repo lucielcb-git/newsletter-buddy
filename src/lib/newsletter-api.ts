@@ -1,4 +1,4 @@
-export const WEBHOOK_URL = "https://jenmc.app.n8n.cloud/webhook/newsletter-agent";
+export const WEBHOOK_URL = "https://agentllcb.app.n8n.cloud/webhook/newsletter-agent";
 
 export type NewsletterAction = "generate" | "edit" | "approve" | "test";
 
