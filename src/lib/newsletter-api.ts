@@ -2,12 +2,20 @@ export const WEBHOOK_URL = "https://jenmc.app.n8n.cloud/webhook/newsletter-agent
 
 export type NewsletterAction = "generate" | "edit" | "approve" | "test";
 
+export interface NewsletterAsset {
+  name: string;
+  type: string;
+  dataUrl: string;
+}
+
 export interface NewsletterRequest {
   action: NewsletterAction;
   userId: number;
   message?: string;
   content?: string;
   companyName?: string;
+  logo?: NewsletterAsset | null;
+  styleGuide?: NewsletterAsset | null;
 }
 
 export interface Evaluation {
