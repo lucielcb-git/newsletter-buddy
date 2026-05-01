@@ -1,66 +1,88 @@
-import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { ChatPanel, type ChatMessage } from "@/components/ChatPanel";
-import { NewsletterPreview, type Draft } from "@/components/NewsletterPreview";
-import { callNewsletterAgent, type Evaluation } from "@/lib/newsletter-api";
+import { NewsletterPreview } from "@/components/NewsletterPreview";
+import { callNewsletterAgent, type NewsletterAsset } from "@/lib/newsletter-api";
 import { Sparkles, Mail, MessageCircle, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentCompany } from "@/lib/current-company";
-
-const WELCOME: ChatMessage = {
-  id: "welcome",
-  role: "agent",
-  content: "Hi! Tell me what your newsletter should be about and I'll draft it for you. 💌",
-};
+import { useNewsletterSession } from "@/lib/newsletter-session";
+import { loadLocalAssets, type LocalAsset } from "@/lib/settings-api";
+import { useState } from "react";
 
 const USER_ID = 1;
 
+function toNewsletterAsset(a: LocalAsset | null | undefined): NewsletterAsset | undefined {
+  if (!a) return undefined;
+  return { name: a.name, type: a.type, dataUrl: a.dataUrl };
+}
+
 const Index = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [session, setSession] = useNewsletterSession();
+  const { messages, draft, evaluation } = session;
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState<"test" | "approve" | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
   const [companyName] = useCurrentCompany();
 
-  const applyResponse = (data: { title?: string; content?: string; status?: "draft" | "sent"; evaluation?: Evaluation }) => {
-    if (data.content || data.title) {
-      setDraft({
-        title: data.title ?? draft?.title ?? "Untitled",
-        content: data.content ?? draft?.content ?? "",
-        status: data.status ?? "draft",
-      });
-    } else if (data.status) {
-      setDraft((d) => (d ? { ...d, status: data.status! } : d));
-    }
-    if (data.evaluation) setEvaluation(data.evaluation);
+  const appendMessage = (msg: ChatMessage) =>
+    setSession((s) => ({ ...s, messages: [...s.messages, msg] }));
+
+  const applyResponse = (data: { title?: string; content?: string; status?: "draft" | "sent"; evaluation?: typeof evaluation }) => {
+    setSession((s) => {
+      let nextDraft = s.draft;
+      if (data.content || data.title) {
+        nextDraft = {
+          title: data.title ?? s.draft?.title ?? "Untitled",
+          content: data.content ?? s.draft?.content ?? "",
+          status: data.status ?? "draft",
+        };
+      } else if (data.status && s.draft) {
+        nextDraft = { ...s.draft, status: data.status };
+      }
+      return {
+        ...s,
+        draft: nextDraft,
+        evaluation: data.evaluation ?? s.evaluation,
+      };
+    });
+  };
+
+  const getAssetsPayload = () => {
+    const assets = loadLocalAssets(companyName);
+    return {
+      logo: toNewsletterAsset(assets.logo),
+      styleGuide: toNewsletterAsset(assets.styleGuide),
+    };
   };
 
   const handleSend = async (text: string) => {
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: text };
-    setMessages((m) => [...m, userMsg]);
+    appendMessage(userMsg);
     setIsLoading(true);
 
     const isEditIntent = /\bedit\b/i.test(text);
     const action = isEditIntent || draft ? "edit" : "generate";
     const currentContent = draft ? `Title: ${draft.title}\n\n${draft.content}` : undefined;
     try {
-      const data = await callNewsletterAgent({ action, userId: USER_ID, message: text, content: currentContent, companyName });
+      const data = await callNewsletterAgent({
+        action,
+        userId: USER_ID,
+        message: text,
+        content: currentContent,
+        companyName,
+        ...getAssetsPayload(),
+      });
       applyResponse(data);
       const reply = data.content
         ? `Done! I've ${action === "generate" ? "drafted" : "updated"} your newsletter — check the preview ✨`
         : "All set!";
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: "agent", content: reply }]);
+      appendMessage({ id: crypto.randomUUID(), role: "agent", content: reply });
       if (window.innerWidth < 768) setMobileTab("preview");
     } catch (err) {
       console.error(err);
       toast.error("Oops! Couldn't reach the newsletter agent. Please try again.");
-      setMessages((m) => [
-        ...m,
-        { id: crypto.randomUUID(), role: "agent", content: "Sorry, something went wrong. Please try again 🙈" },
-      ]);
+      appendMessage({ id: crypto.randomUUID(), role: "agent", content: "Sorry, something went wrong. Please try again 🙈" });
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +93,14 @@ const Index = () => {
     setIsSending("test");
     try {
       const content = `Title: ${draft.title}\n\n${draft.content}`;
-      await callNewsletterAgent({ action: "test", userId: USER_ID, message: "Send test email", content, companyName });
+      await callNewsletterAgent({
+        action: "test",
+        userId: USER_ID,
+        message: "Send test email",
+        content,
+        companyName,
+        ...getAssetsPayload(),
+      });
       toast.success("Test email sent! 📨");
     } catch {
       toast.error("Failed to send test email.");
@@ -83,7 +112,12 @@ const Index = () => {
   const handleApprove = async () => {
     setIsSending("approve");
     try {
-      const data = await callNewsletterAgent({ action: "approve", userId: USER_ID, companyName });
+      const data = await callNewsletterAgent({
+        action: "approve",
+        userId: USER_ID,
+        companyName,
+        ...getAssetsPayload(),
+      });
       applyResponse({ ...data, status: data.status ?? "sent" });
       toast.success("Newsletter sent to all subscribers! 🎉");
     } catch {
