@@ -143,9 +143,6 @@ const Settings = () => {
                     {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Load"}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Used as the lookup key. Defaults to <code>{DEFAULT_COMPANY_NAME}</code>.
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -175,9 +172,6 @@ const Settings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Brand assets</CardTitle>
-              <CardDescription>
-                Stored locally in your browser. Not uploaded to the backend yet.
-              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <AssetUploader
