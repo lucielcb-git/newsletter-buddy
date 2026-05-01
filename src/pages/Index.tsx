@@ -6,6 +6,7 @@ import { NewsletterPreview, type Draft } from "@/components/NewsletterPreview";
 import { callNewsletterAgent, type Evaluation } from "@/lib/newsletter-api";
 import { Sparkles, Mail, MessageCircle, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCurrentCompany } from "@/lib/current-company";
 
 const WELCOME: ChatMessage = {
   id: "welcome",
@@ -22,6 +23,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState<"test" | "approve" | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
+  const [companyName] = useCurrentCompany();
 
   const applyResponse = (data: { title?: string; content?: string; status?: "draft" | "sent"; evaluation?: Evaluation }) => {
     if (data.content || data.title) {
@@ -45,7 +47,7 @@ const Index = () => {
     const action = isEditIntent || draft ? "edit" : "generate";
     const currentContent = draft ? `Title: ${draft.title}\n\n${draft.content}` : undefined;
     try {
-      const data = await callNewsletterAgent({ action, userId: USER_ID, message: text, content: currentContent });
+      const data = await callNewsletterAgent({ action, userId: USER_ID, message: text, content: currentContent, companyName });
       applyResponse(data);
       const reply = data.content
         ? `Done! I've ${action === "generate" ? "drafted" : "updated"} your newsletter — check the preview ✨`
@@ -69,7 +71,7 @@ const Index = () => {
     setIsSending("test");
     try {
       const content = `Title: ${draft.title}\n\n${draft.content}`;
-      await callNewsletterAgent({ action: "test", userId: USER_ID, message: "Send test email", content });
+      await callNewsletterAgent({ action: "test", userId: USER_ID, message: "Send test email", content, companyName });
       toast.success("Test email sent! 📨");
     } catch {
       toast.error("Failed to send test email.");
@@ -81,7 +83,7 @@ const Index = () => {
   const handleApprove = async () => {
     setIsSending("approve");
     try {
-      const data = await callNewsletterAgent({ action: "approve", userId: USER_ID });
+      const data = await callNewsletterAgent({ action: "approve", userId: USER_ID, companyName });
       applyResponse({ ...data, status: data.status ?? "sent" });
       toast.success("Newsletter sent to all subscribers! 🎉");
     } catch {

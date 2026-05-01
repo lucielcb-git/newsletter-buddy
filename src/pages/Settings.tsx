@@ -17,9 +17,11 @@ import {
   type LocalAsset,
   type LocalAssets,
 } from "@/lib/settings-api";
+import { useCurrentCompany } from "@/lib/current-company";
 
 const Settings = () => {
-  const [companyName, setCompanyName] = useState(DEFAULT_COMPANY_NAME);
+  const [currentCompany, setCurrentCompany] = useCurrentCompany();
+  const [companyName, setCompanyName] = useState(currentCompany);
   const [keywords, setKeywords] = useState("");
   const [tone, setTone] = useState("");
   const [assets, setAssets] = useState<LocalAssets>({});
@@ -28,21 +30,26 @@ const Settings = () => {
   const logoInput = useRef<HTMLInputElement>(null);
   const guideInput = useRef<HTMLInputElement>(null);
 
-  // Initial load: fetch saved settings for default company + load local assets
+  // Initial load: fetch saved settings for the session's current company
   useEffect(() => {
-    void loadFor(DEFAULT_COMPANY_NAME);
+    void loadFor(currentCompany);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFor = async (name: string) => {
+    const resolved = name.trim() || DEFAULT_COMPANY_NAME;
     setIsFetching(true);
-    setAssets(loadLocalAssets(name));
+    setAssets(loadLocalAssets(resolved));
+    setCurrentCompany(resolved);
     try {
-      const s = await fetchSettings(name);
+      const s = await fetchSettings(resolved);
       if (s) {
-        setCompanyName(s.companyName || name);
+        setCompanyName(s.companyName || resolved);
         setKeywords(s.keywords || "");
         setTone(s.tone || "");
+        setCurrentCompany(s.companyName || resolved);
+      } else {
+        setCompanyName(resolved);
       }
     } catch (err) {
       console.error(err);
@@ -79,6 +86,7 @@ const Settings = () => {
     try {
       await saveSettings({ companyName: name, keywords, tone });
       saveLocalAssets(name, assets); // ensure assets stay tied to current name
+      setCurrentCompany(name);
       toast.success("Settings saved! ✨");
     } catch (err) {
       console.error(err);
