@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { ChatPanel, type ChatMessage } from "@/components/ChatPanel";
 import { NewsletterPreview, type Draft } from "@/components/NewsletterPreview";
 import { callNewsletterAgent, type Evaluation } from "@/lib/newsletter-api";
-import { Sparkles, Mail, MessageCircle } from "lucide-react";
+import { Sparkles, Mail, MessageCircle, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const WELCOME: ChatMessage = {
@@ -92,13 +93,20 @@ const Index = () => {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <header className="px-6 py-5 flex items-center justify-center gap-2">
+      <header className="px-6 py-5 flex items-center justify-center gap-2 relative">
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
           <Sparkles className="h-5 w-5 text-primary-foreground" />
         </div>
         <h1 className="text-xl font-bold text-foreground">
           Newsletter <span className="text-primary">Studio</span>
         </h1>
+        <Link
+          to="/settings"
+          aria-label="Settings"
+          className="absolute right-6 top-1/2 -translate-y-1/2 inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/80 text-muted-foreground hover:text-foreground hover:bg-accent transition"
+        >
+          <SettingsIcon className="h-4 w-4" />
+        </Link>
       </header>
 
       {/* Mobile tabs */}
