@@ -7,6 +7,7 @@ export interface NewsletterRequest {
   userId: number;
   message?: string;
   content?: string;
+  companyName?: string;
 }
 
 export interface Evaluation {
