@@ -1,5 +1,5 @@
-export const SAVE_SETTINGS_URL = "https://jenmc.app.n8n.cloud/webhook/onboarding";
-export const FETCH_SETTINGS_URL = "https://jenmc.app.n8n.cloud/webhook/fetch-settings";
+export const SAVE_SETTINGS_URL = "https://agentllcb.app.n8n.cloud/webhook-test/onboarding";
+export const FETCH_SETTINGS_URL = "https://agentllcb.app.n8n.cloud/webhook-test/fetch-settings";
 
 export const DEFAULT_COMPANY_NAME = "Test";
 
