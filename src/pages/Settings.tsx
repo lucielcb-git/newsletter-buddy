@@ -182,6 +182,25 @@ const Settings = () => {
                   rows={3}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="testEmail">Test email address</Label>
+                <Input
+                  id="testEmail"
+                  type="email"
+                  required
+                  value={testEmail}
+                  onChange={(e) => {
+                    setTestEmail(e.target.value);
+                    if (testEmailError) setTestEmailError(null);
+                  }}
+                  placeholder="you@example.com"
+                  aria-invalid={!!testEmailError}
+                />
+                <p className={`text-xs ${testEmailError ? "text-destructive" : "text-muted-foreground"}`}>
+                  {testEmailError ?? "Where should we send test newsletters?"}
+                </p>
+              </div>
             </CardContent>
           </Card>
 
