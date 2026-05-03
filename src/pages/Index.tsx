@@ -140,9 +140,7 @@ const Index = () => {
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
           <Sparkles className="h-5 w-5 text-primary-foreground" />
         </div>
-        <h1 className="text-xl font-bold text-foreground">
-          Newsletter <span className="text-primary">Studio</span>
-        </h1>
+        <h1 className="text-xl font-bold text-foreground">SignalPost</h1>
         <Link
           to="/settings"
           aria-label="Settings"
