@@ -14,6 +14,7 @@ export interface NewsletterRequest {
   message?: string;
   content?: string;
   companyName?: string;
+  testEmail?: string;
   logo?: NewsletterAsset | null;
   styleGuide?: NewsletterAsset | null;
 }

@@ -7,7 +7,10 @@ export interface Settings {
   companyName: string;
   keywords: string;
   tone: string;
+  testEmail: string;
 }
+
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface LocalAsset {
   name: string;
@@ -84,13 +87,15 @@ export async function fetchSettings(companyName: string): Promise<Settings | nul
     inner.companyName ?? inner.company_name ?? data.companyName ?? companyName;
   const keywords = inner.keywords ?? data.keywords ?? "";
   const tone = inner.tone ?? data.tone ?? "";
+  const testEmail = inner.testEmail ?? inner.test_email ?? data.testEmail ?? data.test_email ?? "";
 
-  if (!companyNameOut && !keywords && !tone) return null;
+  if (!companyNameOut && !keywords && !tone && !testEmail) return null;
 
   return {
     companyName: String(companyNameOut ?? companyName),
     keywords: String(keywords ?? ""),
     tone: String(tone ?? ""),
+    testEmail: String(testEmail ?? ""),
   };
 }
 
@@ -102,6 +107,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
       companyName: settings.companyName,
       keywords: settings.keywords,
       tone: settings.tone,
+      testEmail: settings.testEmail,
     }),
   });
   if (!res.ok) throw new Error(`Save settings failed: ${res.status}`);
