@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_COMPANY_NAME,
+  EMAIL_REGEX,
   fetchSettings,
   fileToAsset,
   loadLocalAssets,
@@ -24,6 +25,8 @@ const Settings = () => {
   const [companyName, setCompanyName] = useState(currentCompany);
   const [keywords, setKeywords] = useState("");
   const [tone, setTone] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [testEmailError, setTestEmailError] = useState<string | null>(null);
   const [assets, setAssets] = useState<LocalAssets>({});
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,6 +50,7 @@ const Settings = () => {
         setCompanyName(s.companyName || resolved);
         setKeywords(s.keywords || "");
         setTone(s.tone || "");
+        setTestEmail(s.testEmail || "");
         setCurrentCompany(s.companyName || resolved);
       } else {
         setCompanyName(resolved);
@@ -82,9 +86,21 @@ const Settings = () => {
 
   const handleSave = async () => {
     const name = companyName.trim() || DEFAULT_COMPANY_NAME;
+    const email = testEmail.trim();
+    if (!email) {
+      setTestEmailError("Test email is required.");
+      toast.error("Please enter a test email address.");
+      return;
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      setTestEmailError("Please enter a valid email address.");
+      toast.error("Invalid test email address.");
+      return;
+    }
+    setTestEmailError(null);
     setIsSaving(true);
     try {
-      await saveSettings({ companyName: name, keywords, tone });
+      await saveSettings({ companyName: name, keywords, tone, testEmail: email });
       saveLocalAssets(name, assets); // ensure assets stay tied to current name
       setCurrentCompany(name);
       toast.success("Settings saved! ✨");
