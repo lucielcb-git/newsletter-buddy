@@ -108,6 +108,7 @@ const Settings = () => {
     try {
       await saveSettings({ companyName: name, keywords, tone, testEmail: email });
       saveLocalAssets(name, assets); // ensure assets stay tied to current name
+      cacheTestEmail(name, email);
       setCurrentCompany(name);
       toast.success("Settings saved! ✨");
     } catch (err) {
