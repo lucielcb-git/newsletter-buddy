@@ -45,6 +45,7 @@ const Settings = () => {
     const resolved = name.trim() || DEFAULT_COMPANY_NAME;
     setIsFetching(true);
     setAssets(loadLocalAssets(resolved));
+    setTestEmail(loadCachedTestEmail(resolved));
     setCurrentCompany(resolved);
     try {
       const s = await fetchSettings(resolved);
@@ -52,7 +53,10 @@ const Settings = () => {
         setCompanyName(s.companyName || resolved);
         setKeywords(s.keywords || "");
         setTone(s.tone || "");
-        setTestEmail(s.testEmail || "");
+        if (s.testEmail) {
+          setTestEmail(s.testEmail);
+          cacheTestEmail(s.companyName || resolved, s.testEmail);
+        }
         setCurrentCompany(s.companyName || resolved);
       } else {
         setCompanyName(resolved);
