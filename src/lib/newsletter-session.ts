@@ -12,7 +12,7 @@ export interface NewsletterSession {
 const WELCOME: ChatMessage = {
   id: "welcome",
   role: "agent",
-  content: "Hi! Tell me what your newsletter should be about and I'll draft it for you. 💌",
+  content: "How can I help you today with your email marketing?",
 };
 
 let state: NewsletterSession = {
