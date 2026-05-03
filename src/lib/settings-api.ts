@@ -7,7 +7,10 @@ export interface Settings {
   companyName: string;
   keywords: string;
   tone: string;
+  testEmail: string;
 }
+
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface LocalAsset {
   name: string;
@@ -40,6 +43,26 @@ export function saveLocalAssets(companyName: string, assets: LocalAssets) {
     localStorage.setItem(assetsStorageKey(companyName), JSON.stringify(assets));
   } catch (err) {
     console.error("Failed to persist local assets", err);
+  }
+}
+
+const TEST_EMAIL_KEY_PREFIX = "newsletter-studio:testEmail:";
+const testEmailKey = (companyName: string) =>
+  `${TEST_EMAIL_KEY_PREFIX}${companyName.trim().toLowerCase() || DEFAULT_COMPANY_NAME.toLowerCase()}`;
+
+export function loadCachedTestEmail(companyName: string): string {
+  try {
+    return localStorage.getItem(testEmailKey(companyName)) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function cacheTestEmail(companyName: string, email: string) {
+  try {
+    localStorage.setItem(testEmailKey(companyName), email);
+  } catch (err) {
+    console.error("Failed to cache test email", err);
   }
 }
 
@@ -84,13 +107,15 @@ export async function fetchSettings(companyName: string): Promise<Settings | nul
     inner.companyName ?? inner.company_name ?? data.companyName ?? companyName;
   const keywords = inner.keywords ?? data.keywords ?? "";
   const tone = inner.tone ?? data.tone ?? "";
+  const testEmail = inner.testEmail ?? inner.test_email ?? data.testEmail ?? data.test_email ?? "";
 
-  if (!companyNameOut && !keywords && !tone) return null;
+  if (!companyNameOut && !keywords && !tone && !testEmail) return null;
 
   return {
     companyName: String(companyNameOut ?? companyName),
     keywords: String(keywords ?? ""),
     tone: String(tone ?? ""),
+    testEmail: String(testEmail ?? ""),
   };
 }
 
@@ -102,6 +127,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
       companyName: settings.companyName,
       keywords: settings.keywords,
       tone: settings.tone,
+      testEmail: settings.testEmail,
     }),
   });
   if (!res.ok) throw new Error(`Save settings failed: ${res.status}`);

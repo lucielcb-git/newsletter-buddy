@@ -9,8 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_COMPANY_NAME,
+  EMAIL_REGEX,
+  cacheTestEmail,
   fetchSettings,
   fileToAsset,
+  loadCachedTestEmail,
   loadLocalAssets,
   saveLocalAssets,
   saveSettings,
@@ -24,6 +27,8 @@ const Settings = () => {
   const [companyName, setCompanyName] = useState(currentCompany);
   const [keywords, setKeywords] = useState("");
   const [tone, setTone] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [testEmailError, setTestEmailError] = useState<string | null>(null);
   const [assets, setAssets] = useState<LocalAssets>({});
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,6 +45,7 @@ const Settings = () => {
     const resolved = name.trim() || DEFAULT_COMPANY_NAME;
     setIsFetching(true);
     setAssets(loadLocalAssets(resolved));
+    setTestEmail(loadCachedTestEmail(resolved));
     setCurrentCompany(resolved);
     try {
       const s = await fetchSettings(resolved);
@@ -47,6 +53,10 @@ const Settings = () => {
         setCompanyName(s.companyName || resolved);
         setKeywords(s.keywords || "");
         setTone(s.tone || "");
+        if (s.testEmail) {
+          setTestEmail(s.testEmail);
+          cacheTestEmail(s.companyName || resolved, s.testEmail);
+        }
         setCurrentCompany(s.companyName || resolved);
       } else {
         setCompanyName(resolved);
@@ -82,10 +92,23 @@ const Settings = () => {
 
   const handleSave = async () => {
     const name = companyName.trim() || DEFAULT_COMPANY_NAME;
+    const email = testEmail.trim();
+    if (!email) {
+      setTestEmailError("Test email is required.");
+      toast.error("Please enter a test email address.");
+      return;
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      setTestEmailError("Please enter a valid email address.");
+      toast.error("Invalid test email address.");
+      return;
+    }
+    setTestEmailError(null);
     setIsSaving(true);
     try {
-      await saveSettings({ companyName: name, keywords, tone });
+      await saveSettings({ companyName: name, keywords, tone, testEmail: email });
       saveLocalAssets(name, assets); // ensure assets stay tied to current name
+      cacheTestEmail(name, email);
       setCurrentCompany(name);
       toast.success("Settings saved! ✨");
     } catch (err) {
@@ -165,6 +188,25 @@ const Settings = () => {
                   placeholder="e.g. friendly, witty, professional"
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="testEmail">Test email address</Label>
+                <Input
+                  id="testEmail"
+                  type="email"
+                  required
+                  value={testEmail}
+                  onChange={(e) => {
+                    setTestEmail(e.target.value);
+                    if (testEmailError) setTestEmailError(null);
+                  }}
+                  placeholder="you@example.com"
+                  aria-invalid={!!testEmailError}
+                />
+                <p className={`text-xs ${testEmailError ? "text-destructive" : "text-muted-foreground"}`}>
+                  {testEmailError ?? "Where should we send test newsletters?"}
+                </p>
               </div>
             </CardContent>
           </Card>
