@@ -46,6 +46,26 @@ export function saveLocalAssets(companyName: string, assets: LocalAssets) {
   }
 }
 
+const TEST_EMAIL_KEY_PREFIX = "newsletter-studio:testEmail:";
+const testEmailKey = (companyName: string) =>
+  `${TEST_EMAIL_KEY_PREFIX}${companyName.trim().toLowerCase() || DEFAULT_COMPANY_NAME.toLowerCase()}`;
+
+export function loadCachedTestEmail(companyName: string): string {
+  try {
+    return localStorage.getItem(testEmailKey(companyName)) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function cacheTestEmail(companyName: string, email: string) {
+  try {
+    localStorage.setItem(testEmailKey(companyName), email);
+  } catch (err) {
+    console.error("Failed to cache test email", err);
+  }
+}
+
 export function fileToAsset(file: File): Promise<LocalAsset> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
