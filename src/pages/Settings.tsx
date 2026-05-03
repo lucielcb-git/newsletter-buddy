@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_COMPANY_NAME,
   EMAIL_REGEX,
+  cacheTestEmail,
   fetchSettings,
   fileToAsset,
+  loadCachedTestEmail,
   loadLocalAssets,
   saveLocalAssets,
   saveSettings,
