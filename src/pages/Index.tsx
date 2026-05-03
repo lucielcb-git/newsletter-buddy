@@ -7,7 +7,7 @@ import { Sparkles, Mail, MessageCircle, Settings as SettingsIcon } from "lucide-
 import { cn } from "@/lib/utils";
 import { useCurrentCompany } from "@/lib/current-company";
 import { useNewsletterSession } from "@/lib/newsletter-session";
-import { loadLocalAssets, type LocalAsset } from "@/lib/settings-api";
+import { loadCachedTestEmail, loadLocalAssets, type LocalAsset } from "@/lib/settings-api";
 import { useState } from "react";
 
 const USER_ID = 1;
@@ -93,12 +93,19 @@ const Index = () => {
     setIsSending("test");
     try {
       const content = `Title: ${draft.title}\n\n${draft.content}`;
+      const testEmail = loadCachedTestEmail(companyName);
+      if (!testEmail) {
+        toast.error("Set a test email in Settings first.");
+        setIsSending(null);
+        return;
+      }
       await callNewsletterAgent({
         action: "test",
         userId: USER_ID,
         message: "Send test email",
         content,
         companyName,
+        testEmail,
         ...getAssetsPayload(),
       });
       toast.success("Test email sent! 📨");
