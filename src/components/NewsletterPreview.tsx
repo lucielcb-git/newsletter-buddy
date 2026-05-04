@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { Mail, Send, CheckCircle2, Loader2, Award, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Evaluation } from "@/lib/newsletter-api";
@@ -138,6 +139,7 @@ export const NewsletterPreview = ({ draft, evaluation, onTest, onApprove, isSend
             <div className="rounded-2xl bg-background/60 border border-border/60 p-6 shadow-soft">
               <article className="newsletter-prose">
                 <ReactMarkdown
+                  rehypePlugins={[rehypeRaw]}
                   components={{
                     a: ({ href, children }) => {
                       const childArray = Array.isArray(children) ? children : [children];
