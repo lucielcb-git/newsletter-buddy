@@ -1,6 +1,15 @@
 # SignalPost
 
-AI-powered newsletter generator. Describe what you want in a chat interface, and an AI agent drafts, evaluates, and sends your newsletter.
+AI-powered newsletter generator built as part of NYU Stern's **Foundations of AI Agents** course. The goal was to explore the potential of AI agents to support SMBs in their marketing efforts.
+
+This is a first iteration/prototype, but it includes the foundations for a production-grade agent:
+- **Frontend UI** for conversational interaction
+- **Agent memory** to maintain context across exchanges
+- **Agent guardrails** and **evaluation scoring** to enforce output quality
+- **Human-in-the-loop controls** (test email, approve-before-send) to validate content and layout before broadcasting
+- **Inbox integration** so users can preview the final email rendering
+
+Building this taught me what AI agents can realistically do today, where the limitations are, and where human oversight remains essential given the probabilistic nature of LLMs.
 
 ## How It Works
 
