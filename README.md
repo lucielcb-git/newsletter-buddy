@@ -1,15 +1,31 @@
 # SignalPost
 
-AI-powered newsletter generator built as part of NYU Stern's **Foundations of AI Agents** course. The goal was to explore the potential of AI agents to support SMBs in their marketing efforts.
+AI-powered newsletter generator built as part of NYU Stern's **Foundations of AI Agents** course.
 
-This is a first iteration/prototype, but it includes the foundations for a production-grade agent:
-- **Frontend UI** for conversational interaction
-- **Agent memory** to maintain context across exchanges
-- **Agent guardrails** and **evaluation scoring** to enforce output quality
-- **Human-in-the-loop controls** (test email, approve-before-send) to validate content and layout before broadcasting
-- **Inbox integration** so users can preview the final email rendering
+### The Problem
 
-Building this taught me what AI agents can realistically do today, where the limitations are, and where human oversight remains essential given the probabilistic nature of LLMs.
+SMBs know consistent content marketing drives growth, but most lack the time, writing resources, or tooling to produce quality newsletters at a regular cadence. Existing solutions are either too manual (Mailchimp template editors) or too generic (pure LLM output with no brand awareness or quality control).
+
+### The Hypothesis
+
+An AI agent that combines conversational drafting with structured guardrails can get SMBs from idea to send-ready newsletter in minutes, not hours, while keeping a human in control of what actually goes out.
+
+### What This Prototype Explores
+
+This is a first iteration, but it was designed with the building blocks a production-grade agent would need:
+
+- **Conversational UI** - Users describe what they want in natural language; the agent generates and iteratively refines the draft through a chat interface, maintaining context across exchanges
+- **Brand-aware generation** - Users upload their logo and style guide, and configure tone and keyword preferences per company. The agent adapts its output accordingly, not just generic content
+- **Evaluation scoring** - Every draft is scored across 5 dimensions (tone, keyword coverage, structure, length, intent compliance) with a pass/fail gate. This makes quality visible and actionable, not a black box
+- **Human-in-the-loop controls** - Approve-before-send confirmation, test email delivery to validate layout in your actual inbox, and iterative editing before broadcast. The agent proposes; the human decides
+- **Multi-company support** - Settings, brand assets, and preferences persist per company profile, designed for agencies or operators managing multiple brands
+
+### What I Learned
+
+Building this clarified where AI agents add real value and where they break down:
+- **Works well**: First-draft generation, maintaining tone consistency, structured content formatting
+- **Requires guardrails**: Output quality varies across runs; evaluation scoring and human review are non-negotiable for anything customer-facing
+- **Key insight**: The probabilistic nature of LLMs means the product design matters as much as the model. Trust is built through transparency (visible scores), control (edit before send), and verification (test emails), not by hiding the AI behind a "magic" button
 
 ## How It Works
 
